@@ -51,9 +51,9 @@ Sys.setlocale("LC_TIME", "English")
 
 ```r
 dfAx3dataRaw <- read.csv(unz("activity.zip", "activity.csv"), header=T,sep=",",stringsAsFactors=FALSE)
-# Settings NAs to zero
+# Removing NAs
 dfAx3data <- dfAx3dataRaw
-dfAx3data[is.na(dfAx3data[,"steps"]),"steps"] <- 0
+dfAx3data <- dfAx3data[!is.na(dfAx3data[,"steps"]),]
 # Converting the time intervals
 #First convert to character and pad it with zeroes
 dfAx3data$interval <- sprintf("%04d",as.numeric(dfAx3data$int))
@@ -66,13 +66,13 @@ head(dfAx3data)
 ```
 
 ```
-##   steps       date            interval
-## 1     0 2012-10-01 2014-12-15 00:00:00
-## 2     0 2012-10-01 2014-12-15 00:05:00
-## 3     0 2012-10-01 2014-12-15 00:10:00
-## 4     0 2012-10-01 2014-12-15 00:15:00
-## 5     0 2012-10-01 2014-12-15 00:20:00
-## 6     0 2012-10-01 2014-12-15 00:25:00
+##     steps       date            interval
+## 289     0 2012-10-02 2014-12-15 00:00:00
+## 290     0 2012-10-02 2014-12-15 00:05:00
+## 291     0 2012-10-02 2014-12-15 00:10:00
+## 292     0 2012-10-02 2014-12-15 00:15:00
+## 293     0 2012-10-02 2014-12-15 00:20:00
+## 294     0 2012-10-02 2014-12-15 00:25:00
 ```
 
 ```r
@@ -81,12 +81,12 @@ tail(dfAx3data)
 
 ```
 ##       steps       date            interval
-## 17563     0 2012-11-30 2014-12-15 23:30:00
-## 17564     0 2012-11-30 2014-12-15 23:35:00
-## 17565     0 2012-11-30 2014-12-15 23:40:00
-## 17566     0 2012-11-30 2014-12-15 23:45:00
-## 17567     0 2012-11-30 2014-12-15 23:50:00
-## 17568     0 2012-11-30 2014-12-15 23:55:00
+## 17275     0 2012-11-29 2014-12-15 23:30:00
+## 17276     0 2012-11-29 2014-12-15 23:35:00
+## 17277     0 2012-11-29 2014-12-15 23:40:00
+## 17278     0 2012-11-29 2014-12-15 23:45:00
+## 17279     0 2012-11-29 2014-12-15 23:50:00
+## 17280     0 2012-11-29 2014-12-15 23:55:00
 ```
 ## What is mean total number of steps taken per day?
 #### 1. Make a histogram of the total number of steps taken each day
@@ -111,20 +111,20 @@ hist(total,
 #### 2. Calculate and report the mean and median total number of steps taken per day
 
 ```r
-dfAx2doTotalPerDate <- ddply(dfAx3data, .(date), summarise, total = sum(steps,na.rm=TRUE))
+dfAx2doTotalPerDate <- ddply(dfAx3data, .(date), summarise, total = sum(steps))
 lsAdoTotalPerDate <- dfAx2doTotalPerDate$total
 doMean <-  mean(lsAdoTotalPerDate)
 doMedian <- median(lsAdoTotalPerDate)
 ```
 
-The mean of the total number of steps per day is 9354.23.  
-The median of the total number of steps per day is 10395.
+The mean of the total number of steps per day is 10766.19.  
+The median of the total number of steps per day is 10765.
 
 ## What is the average daily activity pattern?
 #### 1.  Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis).  
 
 ```r
-dfAx2doIntervalMean <- ddply(dfAx3data, .(interval), summarise, mean = mean(steps,na.rm = TRUE))
+dfAx2doIntervalMean <- ddply(dfAx3data, .(interval), summarise, mean = mean(steps))
 with(dfAx2doIntervalMean,
      plot(x = interval,
           y = mean,
@@ -167,9 +167,16 @@ The strategy I use, is to replace the missing steps values by the mean (over all
 dfAx2strdoIntervalMean <- ddply(dfAx3data,
       .(interval),
       summarise,
-      mean = mean(steps,na.rm=TRUE))
+      mean = mean(steps))
 lsABooIsNA <- is.na(dfAx3dataRaw[,"steps"])
-dfAx3dataFilled <- dfAx3data
+dfAx3dataFilled <- dfAx3dataRaw
+# Converting the time intervals
+#First convert to character and pad it with zeroes
+dfAx3dataFilled$interval <- sprintf("%04d",as.numeric(dfAx3dataFilled$int))
+strTimeFormat <- "%H%M"
+#This method also adds a date, but this won't interfere in
+#our analysis
+dfAx3dataFilled$interval <- strptime(dfAx3dataFilled$interval,strTimeFormat)
 for( inIndexInterval in 1:length(dfAx2strdoIntervalMean[,1]) ){
     strInterval <- dfAx2strdoIntervalMean[inIndexInterval,"interval"]
     doMeanFiller <- dfAx2strdoIntervalMean[inIndexInterval,"mean"]
@@ -180,12 +187,12 @@ head(dfAx3dataFilled)
 
 ```
 ##   steps       date            interval
-## 1 1.492 2012-10-01 2014-12-15 00:00:00
-## 2 0.295 2012-10-01 2014-12-15 00:05:00
-## 3 0.115 2012-10-01 2014-12-15 00:10:00
-## 4 0.131 2012-10-01 2014-12-15 00:15:00
-## 5 0.066 2012-10-01 2014-12-15 00:20:00
-## 6 1.820 2012-10-01 2014-12-15 00:25:00
+## 1 1.717 2012-10-01 2014-12-15 00:00:00
+## 2 0.340 2012-10-01 2014-12-15 00:05:00
+## 3 0.132 2012-10-01 2014-12-15 00:10:00
+## 4 0.151 2012-10-01 2014-12-15 00:15:00
+## 5 0.075 2012-10-01 2014-12-15 00:20:00
+## 6 2.094 2012-10-01 2014-12-15 00:25:00
 ```
 
 #### 4. Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day.
@@ -208,24 +215,23 @@ hist(total,
 ![](PA1_template_files/figure-html/missinghistogram-1.png) 
 
 ```r
-dfAx2doTotalPerDateFilled <- ddply(dfAx3dataFilled, .(date), summarise, total = sum(steps,na.rm=TRUE))
+dfAx2doTotalPerDateFilled <- ddply(dfAx3dataFilled, .(date), summarise, total = sum(steps))
 lsAdoTotalPerDateFilled <- dfAx2doTotalPerDateFilled$total
 doMeanFilled <- mean(lsAdoTotalPerDateFilled)
 doMedianFilled <- median(lsAdoTotalPerDateFilled)
 ```
 
 The mean of the total number of steps per day for the filled in dataset is
-10581.01, wheras the median of the total number of steps per day is
-10395.
+10766.19, wheras the median of the total number of steps per day is
+10766.19.
 
 #### 5. Do these values differ from the estimates from the first part of the assignment?
-
-The mean is different from the first part of the assignment, the median not.
-The absolute difference in the mean is 1226.78.
+The median for this dataset is different from the first part of the assignment.
+The mean stays the same.
+The absolute difference in the median is 1.19.
 
 #### 6. What is the impact of imputing missing data on the estimates of the total daily number of steps?
-The mean increases, the median stays the same.
-Replacing the values also seems to normalize the total number of steps per day frequency vs step count.
+Imputing the missing data makes the mean and median equal.
 
 ## Are there differences in activity patterns between weekdays and weekends?
 

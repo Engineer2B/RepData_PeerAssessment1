@@ -15,9 +15,9 @@ library(lattice)
 options(scipen = 5, digits = 2)
 Sys.setlocale("LC_TIME", "English")
 dfAx3dataRaw <- read.csv(unz("activity.zip", "activity.csv"), header=T,sep=",",stringsAsFactors=FALSE)
-# Settings NAs to zero
+# Removing NAs
 dfAx3data <- dfAx3dataRaw
-dfAx3data[is.na(dfAx3data[,"steps"]),"steps"] <- 0
+dfAx3data <- dfAx3data[!is.na(dfAx3data[,"steps"]),]
 # Converting the time intervals
 #First convert to character and pad it with zeroes
 dfAx3data$interval <- sprintf("%04d",as.numeric(dfAx3data$int))
@@ -48,7 +48,7 @@ hist(total,
 
 #### 2. Calculate and report the mean and median total number of steps taken per day
 ```{r meanoftotal}
-dfAx2doTotalPerDate <- ddply(dfAx3data, .(date), summarise, total = sum(steps,na.rm=TRUE))
+dfAx2doTotalPerDate <- ddply(dfAx3data, .(date), summarise, total = sum(steps))
 lsAdoTotalPerDate <- dfAx2doTotalPerDate$total
 doMean <-  mean(lsAdoTotalPerDate)
 doMedian <- median(lsAdoTotalPerDate)
@@ -60,7 +60,7 @@ The median of the total number of steps per day is `r doMedian`.
 ## What is the average daily activity pattern?
 #### 1.  Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis).  
 ```{r timeseries}
-dfAx2doIntervalMean <- ddply(dfAx3data, .(interval), summarise, mean = mean(steps,na.rm = TRUE))
+dfAx2doIntervalMean <- ddply(dfAx3data, .(interval), summarise, mean = mean(steps))
 with(dfAx2doIntervalMean,
      plot(x = interval,
           y = mean,
@@ -98,9 +98,16 @@ The strategy I use, is to replace the missing steps values by the mean (over all
 dfAx2strdoIntervalMean <- ddply(dfAx3data,
       .(interval),
       summarise,
-      mean = mean(steps,na.rm=TRUE))
+      mean = mean(steps))
 lsABooIsNA <- is.na(dfAx3dataRaw[,"steps"])
-dfAx3dataFilled <- dfAx3data
+dfAx3dataFilled <- dfAx3dataRaw
+# Converting the time intervals
+#First convert to character and pad it with zeroes
+dfAx3dataFilled$interval <- sprintf("%04d",as.numeric(dfAx3dataFilled$int))
+strTimeFormat <- "%H%M"
+#This method also adds a date, but this won't interfere in
+#our analysis
+dfAx3dataFilled$interval <- strptime(dfAx3dataFilled$interval,strTimeFormat)
 for( inIndexInterval in 1:length(dfAx2strdoIntervalMean[,1]) ){
     strInterval <- dfAx2strdoIntervalMean[inIndexInterval,"interval"]
     doMeanFiller <- dfAx2strdoIntervalMean[inIndexInterval,"mean"]
@@ -123,7 +130,7 @@ hist(total,
      xlab = "Step count",
      ylab = "Frequency",
      col=colors))
-dfAx2doTotalPerDateFilled <- ddply(dfAx3dataFilled, .(date), summarise, total = sum(steps,na.rm=TRUE))
+dfAx2doTotalPerDateFilled <- ddply(dfAx3dataFilled, .(date), summarise, total = sum(steps))
 lsAdoTotalPerDateFilled <- dfAx2doTotalPerDateFilled$total
 doMeanFilled <- mean(lsAdoTotalPerDateFilled)
 doMedianFilled <- median(lsAdoTotalPerDateFilled)
@@ -134,13 +141,12 @@ The mean of the total number of steps per day for the filled in dataset is
 `r doMedianFilled`.
 
 #### 5. Do these values differ from the estimates from the first part of the assignment?
-
-The mean is different from the first part of the assignment, the median not.
-The absolute difference in the mean is `r abs(doMeanFilled - doMean)`.
+The median for this dataset is different from the first part of the assignment.
+The mean stays the same.
+The absolute difference in the median is `r abs(doMedianFilled - doMedian)`.
 
 #### 6. What is the impact of imputing missing data on the estimates of the total daily number of steps?
-The mean increases, the median stays the same.
-Replacing the values also seems to normalize the total number of steps per day frequency vs step count.
+Imputing the missing data makes the mean and median equal.
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
