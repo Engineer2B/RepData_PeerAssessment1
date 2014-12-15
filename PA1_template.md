@@ -67,12 +67,12 @@ head(dfAx3data)
 
 ```
 ##   steps       date            interval
-## 1     0 2012-10-01 2014-12-14 00:00:00
-## 2     0 2012-10-01 2014-12-14 00:05:00
-## 3     0 2012-10-01 2014-12-14 00:10:00
-## 4     0 2012-10-01 2014-12-14 00:15:00
-## 5     0 2012-10-01 2014-12-14 00:20:00
-## 6     0 2012-10-01 2014-12-14 00:25:00
+## 1     0 2012-10-01 2014-12-15 00:00:00
+## 2     0 2012-10-01 2014-12-15 00:05:00
+## 3     0 2012-10-01 2014-12-15 00:10:00
+## 4     0 2012-10-01 2014-12-15 00:15:00
+## 5     0 2012-10-01 2014-12-15 00:20:00
+## 6     0 2012-10-01 2014-12-15 00:25:00
 ```
 
 ```r
@@ -81,15 +81,15 @@ tail(dfAx3data)
 
 ```
 ##       steps       date            interval
-## 17563     0 2012-11-30 2014-12-14 23:30:00
-## 17564     0 2012-11-30 2014-12-14 23:35:00
-## 17565     0 2012-11-30 2014-12-14 23:40:00
-## 17566     0 2012-11-30 2014-12-14 23:45:00
-## 17567     0 2012-11-30 2014-12-14 23:50:00
-## 17568     0 2012-11-30 2014-12-14 23:55:00
+## 17563     0 2012-11-30 2014-12-15 23:30:00
+## 17564     0 2012-11-30 2014-12-15 23:35:00
+## 17565     0 2012-11-30 2014-12-15 23:40:00
+## 17566     0 2012-11-30 2014-12-15 23:45:00
+## 17567     0 2012-11-30 2014-12-15 23:50:00
+## 17568     0 2012-11-30 2014-12-15 23:55:00
 ```
 ## What is mean total number of steps taken per day?
-1. Make a histogram of the total number of steps taken each day
+#### 1. Make a histogram of the total number of steps taken each day
 
 ```r
 colors = c("red", "yellow", "green",
@@ -108,7 +108,7 @@ hist(total,
 
 ![](PA1_template_files/figure-html/histogram-1.png) 
 
-2. Calculate and report the mean and median total number of steps taken per day
+#### 2. Calculate and report the mean and median total number of steps taken per day
 
 ```r
 dfAx2doTotalPerDate <- ddply(dfAx3data, .(date), summarise, total = sum(steps,na.rm=TRUE))
@@ -121,7 +121,7 @@ The mean of the total number of steps per day is 9354.23.
 The median of the total number of steps per day is 10395.
 
 ## What is the average daily activity pattern?
-1.  Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis).  
+#### 1.  Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis).  
 
 ```r
 dfAx2doIntervalMean <- ddply(dfAx3data, .(interval), summarise, mean = mean(steps,na.rm = TRUE))
@@ -136,7 +136,7 @@ with(dfAx2doIntervalMean,
 
 ![](PA1_template_files/figure-html/timeseries-1.png) 
 
-2. Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
+#### 2. Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
 
 ```r
 dtMaxInterval <- dfAx2doIntervalMean[dfAx2doIntervalMean$mean==max(dfAx2doIntervalMean$mean),"interval"]
@@ -149,7 +149,7 @@ On average, the maximum number of steps occurs at 08:35.
 
 Note that there are a number of days/intervals where there are missing values (coded as NA). The presence of missing days may introduce bias into some calculations or summaries of the data.
 
-1. Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)
+#### 1. Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)
 
 ```r
 inMissingValue <- sum(is.na(dfAx3dataRaw$steps))
@@ -157,11 +157,11 @@ inMissingValue <- sum(is.na(dfAx3dataRaw$steps))
 
 The total number of missing values is 2304.
 
-2. Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.
+#### 2. Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.
 The strategy I use, is to replace the missing steps values by the mean (over all samples) for the 5 minute interval.
 
 
-3. Create a new dataset that is equal to the original dataset but with the missing data filled in.
+#### 3. Create a new dataset that is equal to the original dataset but with the missing data filled in.
 
 ```r
 dfAx2strdoIntervalMean <- ddply(dfAx3data,
@@ -180,15 +180,15 @@ head(dfAx3dataFilled)
 
 ```
 ##   steps       date            interval
-## 1 1.492 2012-10-01 2014-12-14 00:00:00
-## 2 0.295 2012-10-01 2014-12-14 00:05:00
-## 3 0.115 2012-10-01 2014-12-14 00:10:00
-## 4 0.131 2012-10-01 2014-12-14 00:15:00
-## 5 0.066 2012-10-01 2014-12-14 00:20:00
-## 6 1.820 2012-10-01 2014-12-14 00:25:00
+## 1 1.492 2012-10-01 2014-12-15 00:00:00
+## 2 0.295 2012-10-01 2014-12-15 00:05:00
+## 3 0.115 2012-10-01 2014-12-15 00:10:00
+## 4 0.131 2012-10-01 2014-12-15 00:15:00
+## 5 0.066 2012-10-01 2014-12-15 00:20:00
+## 6 1.820 2012-10-01 2014-12-15 00:25:00
 ```
 
-4. Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day.
+#### 4. Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day.
 
 ```r
 colors = c("red", "yellow", "green",
@@ -218,18 +218,18 @@ The mean of the total number of steps per day for the filled in dataset is
 10581.01, wheras the median of the total number of steps per day is
 10395.
 
-5. Do these values differ from the estimates from the first part of the assignment?
+#### 5. Do these values differ from the estimates from the first part of the assignment?
 
 The mean is different from the first part of the assignment, the median not.
 The absolute difference in the mean is 1226.78.
 
-6. What is the impact of imputing missing data on the estimates of the total daily number of steps?
+#### 6. What is the impact of imputing missing data on the estimates of the total daily number of steps?
 The mean increases, the median stays the same.
 Replacing the values also seems to normalize the total number of steps per day frequency vs step count.
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
-1. For this part the weekdays() function may be of some help here. Use the dataset with the filled-in missing values for this part. Create a new factor variable in the dataset with two levels - "weekday" and "weekend" indicating whether a given date is a weekday or weekend day.
+#### 1. For this part the weekdays() function may be of some help here. Use the dataset with the filled-in missing values for this part. Create a new factor variable in the dataset with two levels - "weekday" and "weekend" indicating whether a given date is a weekday or weekend day.
 
 
 ```r
@@ -242,7 +242,7 @@ dfAx3dodtdtFilled <- mutate(dfAx3dodtdtFilled,
 ```
 
 
-2. Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis).
+#### 2. Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis).
 
 
 ```r
